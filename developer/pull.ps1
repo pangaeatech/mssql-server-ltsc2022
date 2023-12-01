@@ -5,7 +5,7 @@ function Invoke-PullImage
         [string]$Tag
     )
 
-    docker pull cagrin/mssql-server-ltsc2022:$Tag
+    docker pull pangaeatech/mssql-server-ltsc2022:$Tag
 }
 
 function Invoke-PullVersion
@@ -16,13 +16,6 @@ function Invoke-PullVersion
     )
 
     Invoke-PullImage $Tag
-    Invoke-PullImage $Tag'-pl'
-    Invoke-PullImage $Tag'-ua'
 }
 
-Invoke-PullVersion '2012-latest'
-Invoke-PullVersion '2014-latest'
-Invoke-PullVersion '2016-latest'
-Invoke-PullVersion '2017-latest'
-Invoke-PullVersion '2019-latest'
 Invoke-PullVersion '2022-latest'
