@@ -1,9 +1,10 @@
 FROM microsoft/windowsservercore
 
-LABEL maintainer "Perry Skountrianos"
+LABEL maintainer "Pangaea Information Technologies, Ltd."
 
 # Download Links:
-ENV exe "https://go.microsoft.com/fwlink/?linkid=2215158"
+ENV setup "https://go.microsoft.com/fwlink/?linkid=2215158"
+ENV patch "https://catalog.s.download.windowsupdate.com/d/msdownload/update/software/updt/2023/09/sqlserver2022-kb5029666-x64_30b8b3666963cf01cb09b35c26a34a04d89cde8d.exe"
 
 ENV sa_password="_" \
     attach_dbs="[]" \
@@ -15,10 +16,12 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 COPY start.ps1 /
 WORKDIR /
 
-RUN Invoke-WebRequest -Uri $env:exe -OutFile SQL.exe ; \
-    Start-Process -Wait -FilePath .\SQL.exe -ArgumentList /qs, /x:setup ; \
-    .\setup\setup.exe /q /ACTION=Install /INSTANCENAME=MSSQLSERVER /FEATURES=SQLEngine /UPDATEENABLED=0 /SQLSVCACCOUNT='NT AUTHORITY\NETWORK SERVICE' /SQLSYSADMINACCOUNTS='BUILTIN\ADMINISTRATORS' /TCPENABLED=1 /NPENABLED=0 /IACCEPTSQLSERVERLICENSETERMS ; \
-    Remove-Item -Recurse -Force SQL.exe, setup
+RUN Invoke-WebRequest -Uri $env:setup -OutFile SQL1.exe ; \
+    Invoke-WebRequest -Uri $env:patch -OutFile SQL2.exe ; \
+    Start-Process -Wait -FilePath .\SQL1.exe -ArgumentList /qs, /x:setup ; \
+    .\setup\setup.exe /q /ACTION=Install /INSTANCENAME=MSSQLSERVER /FEATURES=SQLEngine,FullText /UPDATEENABLED=0 /SQLSVCACCOUNT='NT AUTHORITY\NETWORK SERVICE' /SQLSYSADMINACCOUNTS='BUILTIN\ADMINISTRATORS' /TCPENABLED=1 /NPENABLED=0 /IACCEPTSQLSERVERLICENSETERMS ; \
+    Start-Process -Wait -FilePath .\SQL2.exe ; \
+    Remove-Item -Recurse -Force SQL1.exe, SQL2.exe, setup
 
 RUN stop-service MSSQLSERVER ; \
     set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql14.MSSQLSERVER\mssqlserver\supersocketnetlib\tcp\ipall' -name tcpdynamicports -value '' ; \
