@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/microsoft/windowsservercore:ltsc2022
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
 LABEL maintainer "Pangaea Information Technologies, Ltd."
 
