@@ -23,8 +23,8 @@ jobs:
       working-directory: .
       run: |
         docker login -u $env:USER -p $env:TOKEN $env:REGISTRY
-        docker build 'SQLCOLLATION=$Collation' 'SHARE_PASSWORD="A.794613"' .
-        docker image push pangaeatech/mssql-server-ltsc2022:latest
+        docker build -t "pangaeatech/mssql-server-ltsc2022:latest" .
+        docker image push "pangaeatech/mssql-server-ltsc2022:latest"
         docker logout
       env:
         REGISTRY: ghcr.io
