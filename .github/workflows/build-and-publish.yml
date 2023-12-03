@@ -26,12 +26,12 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: pangaeatech/mssql-server-ltsc2022:latest
-          build-args: |
-              'SQLCOLLATION=$Collation'
-              'SHARE_PATH="\\$IP\Public"'
-              'SHARE_PASSWORD="A.794613"'
+      with:
+        context: .
+        push: true
+        tags: pangaeatech/mssql-server-ltsc2022:latest
+        build-args: |
+          'SQLCOLLATION=$Collation'
+          'SHARE_PATH="\\$IP\Public"'
+          'SHARE_PASSWORD="A.794613"'
 
