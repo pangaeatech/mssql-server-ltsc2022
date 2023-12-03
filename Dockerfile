@@ -19,8 +19,9 @@ WORKDIR /
 RUN Invoke-WebRequest -Uri $env:setup -OutFile SQL1.exe ; \
     Invoke-WebRequest -Uri $env:patch -OutFile SQL2.exe ; \
     Start-Process -Wait -FilePath .\SQL1.exe -ArgumentList /qs, /x:setup ; \
+    Start-Process -Wait -FilePath .\SQL2.exe -ArgumentList /qs, /x:patch ; \
     .\setup\setup.exe /q /ACTION=Install /INSTANCENAME=MSSQLSERVER /FEATURES=SQLEngine,FullText /UPDATEENABLED=0 /SQLSVCACCOUNT='NT AUTHORITY\NETWORK SERVICE' /SQLSYSADMINACCOUNTS='BUILTIN\ADMINISTRATORS' /TCPENABLED=1 /NPENABLED=0 /IACCEPTSQLSERVERLICENSETERMS ; \
-    Start-Process -Wait -FilePath .\SQL2.exe ; \
+    .\patch\setup.exe /quiet /ACTION=Patch /INSTANCENAME=MSSQLSERVER /IACCEPTSQLSERVERLICENSETERMS ; \
     Remove-Item -Recurse -Force SQL1.exe, SQL2.exe, setup
 
 RUN stop-service MSSQLSERVER ; \
