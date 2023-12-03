@@ -22,6 +22,7 @@ jobs:
     - name: Build and push
       working-directory: .
       run: |
+        $ErrorActionPreference = "Stop"
         docker login -u $env:USER -p $env:TOKEN $env:REGISTRY
         docker build -t "pangaeatech/mssql-server-ltsc2022:latest" .
         docker image push "pangaeatech/mssql-server-ltsc2022:latest"
