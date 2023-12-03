@@ -19,19 +19,14 @@ jobs:
         lfs: true
         submodules: true
 
-    - uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: pangaeatech/mssql-server-ltsc2022:latest
-        build-args: |
-          'SQLCOLLATION=$Collation'
-          'SHARE_PATH="\\$IP\Public"'
-          'SHARE_PASSWORD="A.794613"'
-
+    - name: Build and push
+        working-directory: .
+        run: |
+          docker login -u $env:USER -p $env:TOKEN $env:REGISTRY
+          docker build 'SQLCOLLATION=$Collation' 'SHARE_PASSWORD="A.794613"' .
+          docker image push pangaeatech/mssql-server-ltsc2022:latest
+          docker logout
+        env:
+          REGISTRY: ghcr.io
+          USER: ${{ github.actor }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
