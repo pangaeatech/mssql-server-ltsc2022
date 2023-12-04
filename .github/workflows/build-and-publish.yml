@@ -2,7 +2,10 @@ name: Build and Publish Docker image
 concurrency: build-${{ github.ref }}
 on:
   push: 
-    branches: [ main, mjw_test ]
+    branches: [ main]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
 
 permissions:
   contents: read
@@ -10,7 +13,14 @@ permissions:
     
 jobs:
   build-and-push-image:
+    if: ${{ github.event_name == 'push' || (!github.event.pull_request.draft && !startsWith(github.event.pull_request.title, 'WIP ')) }}
     runs-on: windows-latest
+    env:
+      REGISTRY: ghcr.io
+      USER: ${{ github.actor }}
+      TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SQLCOLLATION: "SQL_Latin1_General_CP1_CI_AS"
+      MSSQL_SA_PASSWORD: "A.794613"
 
     steps:
     - uses: actions/checkout@v4
@@ -19,10 +29,12 @@ jobs:
         lfs: true
         submodules: true
 
-    - name: Build and push
-      working-directory: .
-      run: docker login -u $env:USER -p $env:TOKEN $env:REGISTRY && docker build -t "pangaeatech/mssql-server-ltsc2022:latest" . && docker image push "pangaeatech/mssql-server-ltsc2022:latest" && docker logout
-      env:
-        REGISTRY: ghcr.io
-        USER: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build
+      run: docker build -m 4g -t pangaeatech/mssql-server-ltsc2022:latest --build-arg SQLCOLLATION="$env:SQLCOLLATION" .
+
+    - name: Test
+      run: docker run --name test_image -m 4g -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$env:MSSQL_SA_PASSWORD" -p 51433:1433 -d pangaeatech/mssql-server-ltsc2022:latest && Start-Sleep -Second 15 && Invoke-Sqlcmd -TrustServerCertificate -ServerInstance "localhost,51433" -Database "master" -Username "sa" -Password "$env:MSSQL_SA_PASSWORD" -Query "IF SERVERPROPERTY('ProductVersion') <> '$ProductVersion' RAISERROR ('ProductVersion is invalid', 16, 1)" && Invoke-Sqlcmd -TrustServerCertificate -ServerInstance "localhost,51433" -Database "master" -Username "sa" -Password "$env:MSSQL_SA_PASSWORD" -Query "IF SERVERPROPERTY('Collation') <> '$Collation' RAISERROR ('Collation is invalid', 16, 1)"
+
+    - name: Push on main
+      if: ${{ github.event_name == 'push' }}
+      run: docker login -u $env:USER -p $env:TOKEN $env:REGISTRY && docker image push "pangaeatech/mssql-server-ltsc2022:latest" && docker logout
