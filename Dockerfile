@@ -4,7 +4,6 @@ LABEL maintainer "Pangaea Information Technologies, Ltd."
 
 # Download Links:
 ENV setup "https://go.microsoft.com/fwlink/?linkid=2215158"
-ENV patch "https://catalog.s.download.windowsupdate.com/d/msdownload/update/software/updt/2023/09/sqlserver2022-kb5029666-x64_30b8b3666963cf01cb09b35c26a34a04d89cde8d.exe"
 
 ENV sa_password="_" \
     attach_dbs="[]" \
@@ -18,10 +17,7 @@ WORKDIR /
 
 RUN Invoke-WebRequest -Uri $env:setup -OutFile SQL1.exe
 RUN .\SQL1.exe /qs /ACTION=Install /INSTANCENAME=MSSQLSERVER /FEATURES=SQLEngine,FullText /UPDATEENABLED=0 /SQLSVCACCOUNT='NT AUTHORITY\NETWORK SERVICE' /SQLSYSADMINACCOUNTS='BUILTIN\ADMINISTRATORS' /TCPENABLED=1 /NPENABLED=0 /IACCEPTSQLSERVERLICENSETERMS /SAPWD=qGH6RFvq /SECURITYMODE=SQL /SQLSVCSTARTUPTYPE=Automatic 
-RUN Invoke-WebRequest -Uri $env:patch -OutFile SQL2.exe 
-RUN Start-Process -Wait -FilePath .\SQL2.exe -ArgumentList /qs, /x:patch 
-RUN .\patch\setup.exe /qs /ACTION=Patch /INSTANCENAME=MSSQLSERVER /IACCEPTSQLSERVERLICENSETERMS
-RUN Remove-Item -Recurse -Force SQL1.exe, SQL2.exe, patch
+RUN Remove-Item -Recurse -Force SQL1.exe
 
 RUN stop-service MSSQLSERVER 
 RUN set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql14.MSSQLSERVER\mssqlserver\supersocketnetlib\tcp\ipall' -name tcpdynamicports -value ''
