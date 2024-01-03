@@ -1,5 +1,5 @@
 name: Build and Publish Docker image
-concurrency: build-${{ github.ref }}
+concurrency: build-${{ github.head_ref || github.ref }}
 on:
   push: 
     branches: [ main]

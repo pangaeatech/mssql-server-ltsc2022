@@ -4,7 +4,7 @@ LABEL maintainer "Pangaea Information Technologies, Ltd."
 
 # Download Links:
 ENV setup "https://go.microsoft.com/fwlink/?linkid=2215158"
-ENV patch "https://catalog.s.download.windowsupdate.com/d/msdownload/update/software/updt/2023/09/sqlserver2022-kb5029666-x64_30b8b3666963cf01cb09b35c26a34a04d89cde8d.exe"
+ENV patch "https://catalog.s.download.windowsupdate.com/d/msdownload/update/software/updt/2023/11/sqlserver2022-kb5031778-x64_8e55c5f6d70155e9f7fc190383373917426668a2.exe"
 
 ENV sa_password="_" \
     attach_dbs="[]" \
